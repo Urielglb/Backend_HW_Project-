@@ -20,3 +20,17 @@ class UserRead(UserBase):
 
 class User(UserRead, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+
+
+class DepositRequest(SQLModel):
+    bank_account: str
+    amount: float
+
+
+class WithdrawRequest(SQLModel):
+    pin: str
+    amount: float
+
+
+class UserAuth(SQLModel):
+    pin: str

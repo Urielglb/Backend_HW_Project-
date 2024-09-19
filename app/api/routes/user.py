@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from app.models.user import User, UserCreate, UserRead
+from app.models.user import User, UserCreate, UserRead, DepositRequest, WithdrawRequest
 from app.core.db import get_session
 from app.services.user import (
     deposit,
@@ -33,9 +33,9 @@ def create_new_user(user: UserCreate, session: Session = Depends(get_session)):
 
 @router.post("/deposit/")
 def deposit_funds(
-    bank_account: str, amount: float, session: Session = Depends(get_session)
+    deposit_request: DepositRequest, session: Session = Depends(get_session)
 ):
-    user = deposit(session, bank_account, amount)
+    user = deposit(session, deposit_request.bank_account, deposit_request.amount)
     if not user:
         raise HTTPException(
             status_code=404, detail="User not found or invalid bank account"
@@ -44,8 +44,11 @@ def deposit_funds(
 
 
 @router.post("/withdraw/")
-def withdraw_funds(pin: str, amount: float, session: Session = Depends(get_session)):
-    user = withdraw(session, pin, amount)
+def withdraw_funds(
+    withdraw_request: WithdrawRequest, session: Session = Depends(get_session)
+):
+    print(withdraw_request.pin)
+    user = withdraw(session, withdraw_request.pin, withdraw_request.amount)
     if not user:
         raise HTTPException(
             status_code=400, detail="Insufficient funds or invalid account"
