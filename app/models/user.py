@@ -7,7 +7,7 @@ class UserBase(SQLModel):
     pin: str
     balance: float = Field(default=0.0)
     card_type: str = Field(index=True)
-    bank_account: str = Field(index=True, unique=True, max_length=7)
+    bank_account: str = Field(index=True, unique=True, max_length=6)
 
 
 class UserCreate(UserBase):

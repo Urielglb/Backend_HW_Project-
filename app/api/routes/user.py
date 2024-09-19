@@ -1,15 +1,26 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
-from app.models.user import UserCreate, UserRead
+from sqlmodel import Session, select
+from app.models.user import User, UserCreate, UserRead
 from app.core.db import get_session
-from app.services.user import deposit, withdraw
-from app.services.user import get_user_by_bank_account, update_user_balance
+from app.services.user import (
+    deposit,
+    withdraw,
+    get_user_by_bank_account,
+    update_user_balance,
+)
 
 router = APIRouter()
 
 
+@router.get("", response_model=list[UserRead])
+def get_users(session: Session = Depends(get_session)):
+    users = session.exec(select(User)).all()
+    return users
+
+
 @router.post("", response_model=UserRead)
 def create_new_user(user: UserCreate, session: Session = Depends(get_session)):
+
     existing_user = session.exec(select(User).where(User.pin == user.pin)).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
@@ -42,4 +53,22 @@ def withdraw_funds(
         raise HTTPException(
             status_code=400, detail="Insufficient funds or invalid account"
         )
+    return user
+
+
+@router.get("/by-bank-account/{bank_account}", response_model=UserRead)
+def get_user_by_account(bank_account: str, session: Session = Depends(get_session)):
+    user = get_user_by_bank_account(session, bank_account)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@router.put("/update-balance/{bank_account}", response_model=UserRead)
+def update_user_balance_endpoint(
+    bank_account: str, new_balance: float, session: Session = Depends(get_session)
+):
+    user = update_user_balance(session, bank_account, new_balance)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     return user
