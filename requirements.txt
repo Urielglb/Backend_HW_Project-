@@ -6,3 +6,4 @@ sqlmodel
 psycopg2
 pydantic-settings 
 starlette
+faker
