@@ -6,7 +6,7 @@ from app.services.auth import auth_user
 router = APIRouter()
 
 
-@router.post("/auth/")
+@router.post("")
 def authenticate_user(pin: str, session: Session = Depends(get_session)):
     user = auth_user(session, pin)
     if not user:
