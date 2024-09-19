@@ -44,10 +44,8 @@ def deposit_funds(
 
 
 @router.post("/withdraw/")
-def withdraw_funds(
-    bank_account: str, amount: float, session: Session = Depends(get_session)
-):
-    user = withdraw(session, bank_account, amount)
+def withdraw_funds(pin: str, amount: float, session: Session = Depends(get_session)):
+    user = withdraw(session, pin, amount)
     if not user:
         raise HTTPException(
             status_code=400, detail="Insufficient funds or invalid account"
