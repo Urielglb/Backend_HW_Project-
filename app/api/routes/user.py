@@ -6,7 +6,6 @@ from app.services.user import (
     deposit,
     withdraw,
     get_user_by_bank_account,
-    update_user_balance,
 )
 
 router = APIRouter()
@@ -59,16 +58,6 @@ def withdraw_funds(
 @router.get("/by-bank-account/{bank_account}", response_model=UserRead)
 def get_user_by_account(bank_account: str, session: Session = Depends(get_session)):
     user = get_user_by_bank_account(session, bank_account)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
-
-
-@router.put("/update-balance/{bank_account}", response_model=UserRead)
-def update_user_balance_endpoint(
-    bank_account: str, new_balance: float, session: Session = Depends(get_session)
-):
-    user = update_user_balance(session, bank_account, new_balance)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
